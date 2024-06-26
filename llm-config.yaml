@@ -1,0 +1,24 @@
+environment_variables:
+  OPENAI_API_KEY: sk-....X0FUz2bhgyRW32qF1
+  REDIS_HOST: redis
+  REDIS_PASSWORD: ""
+  REDIS_PORT: "6379"
+litellm_settings:
+  cache: true
+  drop_params: true
+  set_verbose: true
+model_list:
+  - litellm_params:
+      api_base: http://host.docker.internal:1234/v1
+      api_key: None
+      custom_llm_provider: openai
+      model: openai/custom
+    model_name: custom
+  - litellm_params:
+      api_key: os.environ/OPENAI_API_KEY
+      custom_llm_provider: openai
+      model: gpt-3.5-turbo
+    model_info:
+      created: 1717683969
+      id: gpt-3.5-turbo
+    model_name: gpt-3.5-turbo

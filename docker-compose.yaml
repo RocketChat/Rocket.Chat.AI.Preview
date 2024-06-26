@@ -1,0 +1,296 @@
+version: '3.9'
+
+services:
+  mlc-ai:
+    image: rocketchatbuildmaster/mlc-llm-preview:${PLATFORM_TAG:-cuda122}-${SHA_SHORT:-0.0.1}
+    container_name: ${MODEL_SERVICE_URL:-llama3-8b}
+    profiles:
+      - full
+      - mlc-llm
+    command: "serve HF://mlc-ai/${MODEL_NAME:-Llama-3-8B-Instruct-q4f16_1-MLC} --host 0.0.0.0 --port 80"
+    ports:
+      - "1234:80"
+    healthcheck:
+      test: [ "CMD", "curl", "-f", "http://localhost:80/v1/models" ]
+      interval: 90s
+      timeout: 10s
+      retries: 3
+    deploy:
+      replicas: 1 # Adjust the number of replicas as needed
+      restart_policy:
+        condition: on-failure
+      resources:
+        reservations:
+          devices:
+            - driver: nvidia
+              count: 1
+              capabilities: [ gpu ]
+    labels:
+      - service.type=llm
+      - service.name=${MODEL_NAME:-Llama-3-8B-Instruct-q4f16_1-MLC}
+      - service.version=${RELEASE:-0.0.1}
+      - service.platform=${PLATFORM_TAG:-cuda122}
+      - service.mode=${MODE:-local}
+    networks:
+      - safe
+
+  mongodb:
+    image: mongo
+    profiles:
+      - full
+      - rubra
+    container_name: mongodb
+    ports:
+      - '27017:27017'
+    volumes:
+      - mongodb:/data/db
+    networks:
+      - rubra
+    restart: always
+
+  redis:
+    image: redis
+    profiles:
+      - full
+      - rubra
+    container_name: redis
+    command: redis-server --appendonly yes
+    ports:
+      - '6379:6379'
+    networks:
+      - rubra
+    restart: always
+
+  litellm:
+    image: ghcr.io/berriai/litellm:main-v1.22.9
+    profiles:
+      - full
+      - rubra
+    ports:
+      - '8002:8002'
+    container_name: litellm
+    volumes:
+      - ./llm-config.yaml:/app/config.yaml
+    command:
+      [
+        "--config",
+        "/app/config.yaml",
+        "--port",
+        "8002",
+        "--num_workers",
+        "8"
+      ]
+    healthcheck:
+      test: [ "CMD-SHELL", "litellm --health --port 8002" ]
+      interval: 30s
+      timeout: 30s
+      retries: 3
+      start_period: 40s
+    networks:
+      - rubra
+      - safe
+    restart: always
+
+  text-embedding-api:
+    container_name: text-embedding-api
+    image: ghcr.io/${RUBRA_ORG:-rubra-ai}/rubra/text_embedding_api:${RUBRA_TAG:-main}
+    profiles:
+      - full
+      - rubra
+    ports:
+      - '8020:8020'
+    environment:
+      - MODEL_NAME=sentence-transformers/all-MiniLM-L6-v2
+    labels:
+      - service.type=text-embedding
+      - service.name=sentence-transformers/all-MiniLM-L6-v2
+      - service.version=${RUBRA_TAG:-main}
+    networks:
+      - rubra
+      - safe
+    restart: always
+
+  vector-db-api:
+    container_name: vector-db-api
+    image: ghcr.io/${RUBRA_ORG:-rubra-ai}/rubra/vector_db_api:${RUBRA_TAG:-main}
+    profiles:
+      - full
+      - rubra
+    depends_on:
+      milvus:
+        condition: service_started
+      text-embedding-api:
+        condition: service_started
+    ports:
+      - '8010:8010'
+    environment:
+      - MILVUS_HOST=milvus
+      - EMBEDDING_HOST=text-embedding-api
+    networks:
+      - rubra
+    restart: always
+
+  task-executor:
+    image: ghcr.io/${RUBRA_ORG:-rubra-ai}/rubra/task_executor:${RUBRA_TAG:-main}
+    container_name: task-executor
+    profiles:
+      - full
+      - rubra
+    depends_on:
+      milvus:
+        condition: service_started
+      text-embedding-api:
+        condition: service_started
+      redis:
+        condition: service_started
+      mongodb:
+        condition: service_started
+    environment:
+      - REDIS_HOST=redis
+      - MONGODB_HOST=mongodb
+      - LITELLM_HOST=litellm
+      - EMBEDDING_HOST=text-embedding-api
+      - VECTOR_DB_HOST=vector-db-api
+      - MILVUS_HOST=milvus
+      - LITELLM_MASTER_KEY=abc
+    networks:
+      - rubra
+    restart: always
+
+  api-server:
+    image: ghcr.io/${RUBRA_ORG:-rubra-ai}/rubra/api_server:${RUBRA_TAG:-main}
+    container_name: api-server
+    profiles:
+      - full
+      - rubra
+    environment:
+      - REDIS_HOST=redis
+      - MONGODB_HOST=mongodb
+      - LITELLM_HOST=litellm
+      - MILVUS_HOST=milvus
+    ports:
+      - '8000:8000'
+    depends_on:
+      litellm:
+        condition: service_started
+      task-executor:
+        condition: service_started
+    networks:
+      - rubra
+      - safe
+    restart: always
+
+  ui:
+    image: ghcr.io/${RUBRA_ORG:-rubra-ai}/rubra/ui:${RUBRA_TAG:-main}
+    container_name: ui
+    profiles:
+      - full
+      - rubra
+    environment:
+      - RUBRA_BACKEND_HOST=api-server
+    ports:
+      - "8501:8501"
+    depends_on:
+      - api-server
+    networks:
+      - rubra
+    restart: always
+
+  etcd:
+    container_name: milvus-etcd
+    image: quay.io/coreos/etcd:v3.5.5
+    profiles:
+      - full
+      - rubra
+    environment:
+      - ETCD_AUTO_COMPACTION_MODE=revision
+      - ETCD_AUTO_COMPACTION_RETENTION=1000
+      - ETCD_QUOTA_BACKEND_BYTES=4294967296
+      - ETCD_SNAPSHOT_COUNT=50000
+    volumes:
+      - ${DOCKER_VOLUME_DIRECTORY:-.}/volumes/etcd:/etcd
+    command: etcd -advertise-client-urls=http://127.0.0.1:2379 -listen-client-urls http://0.0.0.0:2379 --data-dir /etcd
+    healthcheck:
+      test: [ "CMD", "etcdctl", "endpoint", "health" ]
+      interval: 30s
+      timeout: 20s
+      retries: 3
+    restart: always
+
+  minio:
+    container_name: milvus-minio
+    image: minio/minio:RELEASE.2023-03-20T20-16-18Z
+    profiles:
+      - full
+      - rubra
+    environment:
+      MINIO_ACCESS_KEY: minioadmin
+      MINIO_SECRET_KEY: minioadmin
+    ports:
+      - "9001:9001"
+      - "9000:9000"
+    volumes:
+      - ${DOCKER_VOLUME_DIRECTORY:-.}/volumes/minio:/minio_data
+    command: minio server /minio_data --console-address ":9001"
+    healthcheck:
+      test:
+        [
+          "CMD",
+          "curl",
+          "-f",
+          "http://localhost:9000/minio/health/live"
+        ]
+      interval: 30s
+      timeout: 20s
+      retries: 3
+    restart: always
+
+  milvus:
+    container_name: milvus
+    image: milvusdb/milvus:v2.3.3
+    profiles:
+      - full
+      - rubra
+    command: [ "milvus", "run", "standalone" ]
+    security_opt:
+      - seccomp:unconfined
+    environment:
+      ETCD_ENDPOINTS: etcd:2379
+      MINIO_ADDRESS: minio:9000
+    volumes:
+      - ./milvus.yaml:/milvus/configs/milvus.yaml
+      - ${DOCKER_VOLUME_DIRECTORY:-.}/volumes/milvus:/var/lib/milvus
+    healthcheck:
+      test: [ "CMD", "curl", "-f", "http://localhost:9091/healthz" ]
+      interval: 30s
+      start_period: 90s
+      timeout: 20s
+      retries: 3
+    ports:
+      - "19530:19530"
+      - "9091:9091"
+    depends_on:
+      - "etcd"
+      - "minio"
+    labels:
+      - service.type=vector-db
+      - service.name=milvus
+      - service.version=2.3.3
+    networks:
+      - rubra
+      - safe
+      - default
+    restart: always
+
+networks:
+  rubra:
+    name: rubra
+    driver: bridge
+  safe:
+    name: safe
+    driver: bridge
+
+volumes:
+  milvus:
+  mongodb:
+  etcd:
