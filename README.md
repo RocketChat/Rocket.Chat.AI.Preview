@@ -52,24 +52,26 @@ Minimum requirements:
    If using `https`:
 
 ```bash
-git clone https://github.com/RocketChat/Rocket.Chat.AI
+git clone https://github.com/RocketChat/Rocket.Chat.AI.Preview.git
 ```
 
 For zip download:
 
 ```bash
-unzip Rocket.Chat.AI-main.zip -d Rocket.Chat.AI
+unzip Rocket.Chat.AI.Preview-main.zip -d Rocket.Chat.AI.Preview
 ```
 
 2. Change the directory
 
 ```bash
-cd Rocket.Chat.AI
+cd Rocket.Chat.AI.Preview
 ```
 
 ### RAG Pipeline (Rubra.AI)
 
 3. Start rubra
+
+> Note: You can add an environment variable `RUBRA_ORG=rubra-ai` as `RUBRA_ORG=rocketchat` to pull the deployment optimized images from the Rocket.Chat Docker registry.
 
 ```bash
 docker-compose -f docker-compose.yaml --profile rubra up -d
@@ -112,7 +114,7 @@ If everything is running, you can now access the Rubra UI at [http://localhost:8
 
 ### Deploy LLM
 
-> Note we support two methods to run LLM, one with Docker and the other with helm. For the Docker method, follow the steps below. For scaling and production use cases we recommend using our optimized Docker and Helm Deployments, for access, contact the [Rocket.Chat Sales Team](https://www.rocket.chat/sales-contact).
+> Note we support two methods to run LLM, one with Docker and the other with helm. For the Docker method, follow the steps below. For scaling and production use cases we recommend using our optimized Docker and Helm Deployments, for access, please reach out to us on the [Rocket.Chat AI channel](https://open.rocket.chat/channel/Rocket-Chat-SAFE-ai-v-hub).
 > This deployment only supports 4 concurrent requests to the LLMs.
 
 Run the command to check the "CUDA version" on your machine:
@@ -281,6 +283,27 @@ Make sure your Embedding Model URL follows a certain format for request payload 
 >     ]
 > }
 > ```
+
+### About the Config Files
+
+1. `llm-config.yaml`: This file contains the configuration for the LLM service of Rubra AI. You can modify the configuration as per your requirements.
+
+```yaml
+OPENAI_API_KEY: sk-....X0FUz2bhgyRW32qF1 # OpenAI API key - Enables the use of OpenAI models in Rubra AI
+  REDIS_HOST: redis # Redis host
+  REDIS_PASSWORD: "" # Redis password
+  REDIS_PORT: "6379" # Redis port
+
+model_list:
+  - litellm_params:
+      api_base: http://host.docker.internal:1234/v1 # LLM API base URL
+      api_key: None # LLM API key
+      custom_llm_provider: openai # Don't change this for custom models
+      model: openai/custom # Model name - must be in the format openai/custom
+    model_name: custom
+```
+
+2. `milvus.yaml`: This file contains the configuration for the Milvus service of Rubra AI. For more information, refer to the [Milvus documentation](https://milvus.io/docs/configure-docker.md#Modify-the-configuration-file).
 
 ### Troubleshooting
 
