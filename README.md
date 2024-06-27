@@ -71,7 +71,8 @@ cd Rocket.Chat.AI.Preview
 
 3. Start rubra
 
-> Note: You can add an environment variable `RUBRA_ORG=rubra-ai` as `RUBRA_ORG=rocketchat` to pull the deployment optimized images from the Rocket.Chat Docker registry.
+> Note: Images provided under `rocketchat` are optimized specifically for deployment compared to standard `rubra-ai` images. Users seeking general solutions may also consider using `rubra-ai` images as an alternative.
+> To do this, you can add the environment variable `RUBRA_ORG=rubra-ai` in the `.env` file. Or pass it as an argument in the `docker-compose` command. e.g., `RUBRA_ORG=rubra-ai docker-compose -f docker-compose.yaml --profile rubra up -d`
 
 ```bash
 docker-compose -f docker-compose.yaml --profile rubra up -d

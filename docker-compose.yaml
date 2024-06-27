@@ -93,7 +93,7 @@ services:
 
   text-embedding-api:
     container_name: text-embedding-api
-    image: ghcr.io/${RUBRA_ORG:-rubra-ai}/rubra/text_embedding_api:${RUBRA_TAG:-main}
+    image: ghcr.io/${RUBRA_ORG:-rocketchat}/rubra/text_embedding_api:${RUBRA_TAG:-main}
     profiles:
       - full
       - rubra
@@ -112,7 +112,7 @@ services:
 
   vector-db-api:
     container_name: vector-db-api
-    image: ghcr.io/${RUBRA_ORG:-rubra-ai}/rubra/vector_db_api:${RUBRA_TAG:-main}
+    image: ghcr.io/${RUBRA_ORG:-rocketchat}/rubra/vector_db_api:${RUBRA_TAG:-main}
     profiles:
       - full
       - rubra
@@ -131,7 +131,7 @@ services:
     restart: always
 
   task-executor:
-    image: ghcr.io/${RUBRA_ORG:-rubra-ai}/rubra/task_executor:${RUBRA_TAG:-main}
+    image: ghcr.io/${RUBRA_ORG:-rocketchat}/rubra/task_executor:${RUBRA_TAG:-main}
     container_name: task-executor
     profiles:
       - full
@@ -158,7 +158,7 @@ services:
     restart: always
 
   api-server:
-    image: ghcr.io/${RUBRA_ORG:-rubra-ai}/rubra/api_server:${RUBRA_TAG:-main}
+    image: ghcr.io/${RUBRA_ORG:-rocketchat}/rubra/api_server:${RUBRA_TAG:-main}
     container_name: api-server
     profiles:
       - full
@@ -181,7 +181,7 @@ services:
     restart: always
 
   ui:
-    image: ghcr.io/${RUBRA_ORG:-rubra-ai}/rubra/ui:${RUBRA_TAG:-main}
+    image: ghcr.io/${RUBRA_ORG:-rocketchat}/rubra/ui:${RUBRA_TAG:-main}
     container_name: ui
     profiles:
       - full
