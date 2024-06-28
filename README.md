@@ -69,10 +69,7 @@ cd Rocket.Chat.AI.Preview
 
 ### RAG Pipeline (Rubra.AI)
 
-3. Start rubra
-
-> Note: Images provided under `rocketchat` are optimized specifically for deployment compared to standard `rubra-ai` images. Users seeking general solutions may also consider using `rubra-ai` images as an alternative.
-> Optional: To do this, you can add the environment variable `RUBRA_ORG=rubra-ai` in the `.env` file. Or pass it as an argument in the `docker-compose` command. e.g., `RUBRA_ORG=rubra-ai docker-compose -f docker-compose.yaml --profile rubra up -d`
+3. Start Rubra.AI
 
 ```bash
 docker-compose -f docker-compose.yaml --profile rubra up -d
@@ -118,13 +115,13 @@ If everything is running, you can now access the Rubra UI at [http://localhost:8
 > Note we support two methods to run LLM, one with Docker and the other with helm. For the Docker method, follow the steps below. For scaling and production use cases we recommend using our optimized Docker and Helm Deployments, for access, please reach out to us on the [Rocket.Chat AI channel](https://open.rocket.chat/channel/Rocket-Chat-SAFE-ai-v-hub).
 > This deployment only supports 4 concurrent requests to the LLMs.
 
-Run the command to check the "CUDA version" on your machine:
+To verify the installed CUDA version on your system, execute the following command:
 
 ```bash
 nvidia-smi
 ```
 
-The output should look like this:
+This command will produce an output similar to the following:
 
 ```bash
 +-----------------------------------------------------------------------------------------+
@@ -148,13 +145,35 @@ The output should look like this:
 +-----------------------------------------------------------------------------------------+
 ```
 
-In the above output, the `CUDA Version` is `12.5`. You can use this version (removing the `.`) to set the `PLATFORM_TAG` in the `.env` file.
+Additionally, to confirm the version of the CUDA Compiler Driver, use the command:
 
-For example, if the `CUDA Version` is `12.5`, the `PLATFORM_TAG` should be `cuda125`.
+```
+nvcc --version
+```
 
-> Note: We only support the `cuda` and versions as `12.5`, `12.2` and `12.1`. If you have a different version, please upgrade or downgrade to the supported versions. Otherwise, you can reach out to the Rocket.Chat team for feedback on supporting the version you have.
+The expected output is as follows:
 
-Start with defining the environment variables in the `.env` file. You can copy the `.env.llm.example` file and rename it to `.env`.
+```bash
+nvcc: NVIDIA (R) Cuda compiler driver
+Copyright (c) 2005-2024 NVIDIA Corporation
+Built on Wed_Apr_17_19:19:55_PDT_2024
+Cuda compilation tools, release 12.5, V12.5.40
+Build cuda_12.5.r12.5/compiler.34177558_0
+```
+
+In the provided outputs, the `CUDA Version` is identified as `12.5`, and the version of the `CUDA compilation tools` is also `12.5`.
+
+> Should there be a discrepancy in versions, it is recommended to align your system's CUDA version with the supported versions by either upgrading or downgrading.
+
+This version information (excluding the period) is utilized to configure the `PLATFORM_TAG` within the `.env` file.
+
+For instance, with a `CUDA version` of `12.5`, the `PLATFORM_TAG` should be set to `cuda125`.
+
+For example, if it is `12.5`, the `PLATFORM_TAG` should be `cuda125`.
+
+> Note: Supported CUDA versions include `12.5`, `12.2`, and `12.1`. If your system's version does not match any of the supported versions, please consider updating your CUDA installation. Alternatively, for assistance with unsupported versions, contact the Rocket.Chat team for guidance on compatibility.
+
+Start with defining the environment variables in the `.env` file. You can copy the `.env.llm.example` file and rename it to `.env`. Then, modify the following variables as needed:
 
 ```bash
 # For the model weights
@@ -286,6 +305,12 @@ Make sure your Embedding Model URL follows a certain format for request payload 
 > ```
 
 ### About the Config Files
+
+> Note: Once modified, you need to restart the services for the changes to take effect. You can restart the services using the following command:
+
+```bash
+docker-compose -f docker-compose.yaml --profile rubra restart
+```
 
 1. `llm-config.yaml`: This file contains the configuration for the LLM service of Rubra AI. You can modify the configuration as per your requirements.
 
