@@ -76,6 +76,8 @@ cd Rocket.Chat.AI.Preview
 
 ### RAG Pipeline (Rubra.AI)
 
+> Modifying the configuration files is optional. The pipeline will work without modifications, but certain features will be disabled. For more information, refer to the [About the Config Files](#about-the-config-files) section.
+
 3. Start Rubra.AI
 
 ```bash
