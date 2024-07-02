@@ -2,6 +2,9 @@
 
 This guide will help you to setup Rocket.Chat AI on your local machine. The project is in beta and we are working on improving the setup process. If you face any issues or have any feedbacks, please reach out to us on the [Rocket.Chat AI channel](https://open.rocket.chat/channel/Rocket-Chat-SAFE-ai-v-hub).
 
+Here is a high-level overview of the overall workflow:
+![Rocket.Chat AI Overview](./assets/rc_ai_overview.png)
+
 ## Prerequisites
 
 - [Docker](https://docs.docker.com/get-docker/)
@@ -112,8 +115,7 @@ If everything is running, you can now access the Rubra UI at [http://localhost:8
 
 ### Deploy LLM
 
-> Note we support two methods to run LLM, one with Docker and the other with helm. For the Docker method, follow the steps below. For scaling and production use cases we recommend using our optimized Docker and Helm Deployments, for access, please reach out to us on the [Rocket.Chat AI channel](https://open.rocket.chat/channel/Rocket-Chat-SAFE-ai-v-hub).
-> This deployment only supports 4 concurrent requests to the LLMs.
+> Note we support two methods to run LLM, one with Docker and the other with helm. For the Docker method, follow the steps below. For scaling and production use cases we recommend using our optimized Docker and Helm Deployments, for access, please reach out to us on the [customersuccess@rocket.chat](mailto:customersuccess@rocket.chat).
 
 To verify the installed CUDA version on your system, execute the following command:
 
