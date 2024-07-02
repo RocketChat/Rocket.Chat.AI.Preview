@@ -1,6 +1,10 @@
-# Rocket.Chat AI Preview Setup Guide
+# Rocket.Chat AI Setup Guide
 
-This guide will help you to setup Rocket.Chat AI on your local machine. The project is in beta and we are working on improving the setup process. If you face any issues or have any feedbacks, please reach out to us on the [Rocket.Chat AI channel](https://open.rocket.chat/channel/Rocket-Chat-SAFE-ai-v-hub).
+This guide will help you to setup Rocket.Chat AI on your local machine.
+
+Rocket.Chat AI enables you to integrate Open Source Models like Llama3 with your own knowledge base (using Retrieval Augmented Generation) with your Rocket.Chat instance. This allows the LLMs to generate responses based on the context of the docs in the knowledge base, this helps in generating more accurate responses. The Rocket.Chat AI App provides other features like Thread summarization, Omnichannel Conversation Summarization.
+
+> The project is in beta and we are working on improving the setup process. If you face any issues or have any feedbacks, please reach out to us on the [Rocket.Chat AI channel](https://open.rocket.chat/channel/Rocket-Chat-SAFE-ai-v-hub).
 
 Here is a high-level overview of the overall workflow:
 ![Rocket.Chat AI Overview](./assets/rc_ai_overview.png)
