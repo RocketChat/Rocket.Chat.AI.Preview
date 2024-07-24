@@ -2,7 +2,7 @@
 
 This guide will help you to setup Rocket.Chat AI on your local machine.
 
-Rocket.Chat AI enables you to integrate Open Source Models like Llama3 with your own knowledge base (using Retrieval Augmented Generation) with your Rocket.Chat instance. This allows the LLMs to generate responses based on the context of the docs in the knowledge base, this helps in generating more accurate responses. The Rocket.Chat AI App provides other features like Thread summarization, Omnichannel Conversation Summarization.
+Rocket.Chat AI enables you to integrate Open Source Models like Llama3.1 with your own knowledge base (using Retrieval Augmented Generation) with your Rocket.Chat instance. This allows the LLMs to generate responses based on the context of the docs in the knowledge base, this helps in generating more accurate responses. The Rocket.Chat AI App provides other features like Thread summarization, Omnichannel Conversation Summarization.
 
 > The project is in beta and we are working on improving the setup process. If you face any issues or have any feedbacks, please reach out to us on the [Rocket.Chat AI channel](https://open.rocket.chat/channel/Rocket-Chat-AI-v-hub).
 
@@ -46,12 +46,12 @@ Minimum requirements:
 - Memory: 12 GB
 
 - GPU VRAM:
-- - For `Llama3-8B` model: 8 GB
-- - For `Llama3-70B` model: 40 GB
+- - For `Llama3.1-8B` model: 8 GB
+- - For `Llama3.1-70B` model: 40 GB
 
 - Storage:
-- - For `Llama3-8B` model: 100 GB
-- - For `Llama3-70B` model: 500 GB
+- - For `Llama3.1-8B` model: 100 GB
+- - For `Llama3.1-70B` model: 500 GB
 
 ## Installation
 
@@ -185,7 +185,7 @@ Start with defining the environment variables in the `.env` file. You can copy t
 
 ```bash
 # For the model weights
-MODEL_NAME=Llama-3-8B-Instruct-q4f16_1-MLC
+MODEL_NAME=Llama-3.1-8B-Instruct-q4f16_1-MLC
 
 # For the MLC library
 PLATFORM_TAG=cuda125
@@ -208,7 +208,7 @@ Once the Docker container is running, you can call the LLM API using the followi
 curl -X POST \
   -H "Content-Type: application/json" \
   -d '{
-        "model": "Llama-3-8B-Instruct-q4f16_1-MLC",
+        "model": "Llama-3.1-8B-Instruct-q4f16_1-MLC",
         "messages": [
             {"role": "user", "content": "Hello! Our project is MLC LLM. What is the name of our project?"}
         ]
